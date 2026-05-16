@@ -1,0 +1,17 @@
+# Virtual environment
+venv/
+
+# Dataset
+dataset/images/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Models
+*.onnx
+*.pt
+*.pth
+
+# OS files
+.DS_Store
