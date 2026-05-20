@@ -2,7 +2,8 @@
 venv/
 
 # Dataset
-dataset/images/
+dataset/
+
 
 # Python cache
 __pycache__/
