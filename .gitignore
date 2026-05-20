@@ -16,3 +16,12 @@ __pycache__/
 
 # OS files
 .DS_Store
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+# VSCode settings
+.vscode/
+
+#archives
+*.zip
+*.tar.gz
