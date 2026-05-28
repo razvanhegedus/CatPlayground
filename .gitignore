@@ -4,6 +4,9 @@ venv/
 # Dataset
 dataset/
 
+# scripts
+fiftyone scripts/
+scripts/
 
 # Python cache
 __pycache__/
@@ -22,6 +25,10 @@ __pycache__/
 # VSCode settings
 .vscode/
 
+#path
+.pth
+
 #archives
 *.zip
 *.tar.gz
+*.tar-2.gz

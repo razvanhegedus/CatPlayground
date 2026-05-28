@@ -14,7 +14,7 @@ import numpy as np
 import torch
 
 
-dataset_path = Path("dataset/crop_v2")
+dataset_path = Path("dataset/crop")
 image_paths = dataset_path.glob("*.png")
 image_paths_10 = [img for img in image_paths][:10]
 
@@ -170,19 +170,16 @@ def generate_heatmap_size_x(center, size_x, height, width):
 def generate_heatmap_size_y(center, size_y, height, width):
     heatmap = np.zeros((height, width), dtype=np.float32)
     heatmap[center[1], center[0]] = size_y
-    print(f"size_y = {size_y}")
     return heatmap
 
 def generate_heatmap_offset_x(center, offset_x ,height, width):
     heatmap = np.zeros((height, width), dtype=np.float32)
     heatmap[center[1], center[0]] = offset_x
-    print(f"offset_x = {offset_x}")
     return heatmap
 
 def generate_heatmap_offset_y(center, offset_y, height, width):
     heatmap = np.zeros((height, width), dtype=np.float32)
     heatmap[center[1], center[0]] = offset_y
-    print(f"offset_y = {offset_y}")
     return heatmap
 
 
@@ -216,9 +213,61 @@ def decode_image(heatmaps, downscale_factor = 4):
 
 def reconstruct_image_from_heatmaps(image_src, points):
     bl, tr = points[0], points[1]
-    image = copy.deepcopy(image_src)
+    image = np.ascontiguousarray(copy.deepcopy(image_src)) 
+
     image = draw_rectangle_on_image(image, bl, tr)
     return image
+
+import torch
+import numpy as np
+
+def decode_centernet(output, downscale_factor=4):
+
+    # -------------------------
+    # 1. Read predictions
+    # -------------------------
+    hm = torch.sigmoid(output["heatmap"]).squeeze().cpu()  # IMPORTANT
+
+    size = output["size"].squeeze().cpu()      # [2, H, W]
+    offset = output["offset"].squeeze().cpu()  # [2, H, W]
+
+    # -------------------------
+    # 2. Find peak in heatmap
+    # -------------------------
+    y, x = torch.unravel_index(torch.argmax(hm), hm.shape)
+
+    y = y.item()
+    x = x.item()
+
+    # -------------------------
+    # 3. Get predictions at peak
+    # -------------------------
+    off_x = offset[0, y, x].item()
+    off_y = offset[1, y, x].item()
+
+    size_x = size[0, y, x].item()
+    size_y = size[1, y, x].item()
+
+    # -------------------------
+    # 4. Convert to image space
+    # -------------------------
+    center_x = (x + off_x) * downscale_factor
+    center_y = (y + off_y) * downscale_factor
+
+    # size already in image space (your assumption)
+    # if NOT, uncomment:
+    # size_x *= downscale_factor
+    # size_y *= downscale_factor
+
+    # -------------------------
+    # 5. Build box
+    # -------------------------
+    x1 = int(center_x - size_x / 2)
+    y1 = int(center_y - size_y / 2)
+    x2 = int(center_x + size_x / 2)
+    y2 = int(center_y + size_y / 2)
+
+    return [(x1, y1), (x2, y2)]
 
 
 
@@ -227,30 +276,31 @@ def reconstruct_image_from_heatmaps(image_src, points):
 # In[81]:
 
 
-for image_path in image_paths_10:
+# for image_path in image_paths_10:
 
-    image1_resized_with_bounding_box = resize_image_with_bounding_box(image_path) #only for comparation
-    image1_resized = resize_image(image_path)
-    #display(Image.fromarray(image1_resized))
-    print(np.asarray(image1_resized).shape)
+#     image1_resized_with_bounding_box = resize_image_with_bounding_box(image_path) #only for comparation
+#     image1_resized = resize_image(image_path)
+#     #display(Image.fromarray(image1_resized))
+#     print(np.asarray(image1_resized).shape)
 
-    #encode image
-    heatmaps = generate_heatmaps(image_path, sigma=1.5)
+#     #encode image
+#     heatmaps = generate_heatmaps(image_path, sigma=1.5)
 
-    for heatmap in heatmaps:
-        print("Ground Truth Heatmap Shape:", heatmap.shape)
+#     for heatmap in heatmaps:
+#         print("Ground Truth Heatmap Shape:", heatmap.shape)
 
-        heatmap_visual = (heatmap * 255).astype(np.uint8)
-       # display(Image.fromarray(heatmap_visual))
-    #decode
-    points = decode_image(heatmaps)
-    image_decoded = reconstruct_image_from_heatmaps(image1_resized, points)
-    print("reconstruct_image_from_heatmaps\n")
-    #display(Image.fromarray(image_decoded))
-    print(np.asarray(image_decoded).shape)
-    print("compared to original image \n")
-   # display(Image.fromarray(image1_resized_with_bounding_box))
-    print(np.asarray(image1_resized_with_bounding_box).shape)
+#         heatmap_visual = (heatmap * 255).astype(np.uint8)
+#        # display(Image.fromarray(heatmap_visual))
+#     #decode
+#     points = decode_image(heatmaps)
+#     image_decoded = reconstruct_image_from_heatmaps(image1_resized, points)
+#     print("reconstruct_image_from_heatmaps\n")
+#     #display(Image.fromarray(image_decoded))
+#     print(np.asarray(image_decoded).shape)
+#     print("compared to original image \n")
+#    # display(Image.fromarray(image1_resized_with_bounding_box))
+#     print(np.asarray(image1_resized_with_bounding_box).shape)
+#     print(image1_resized[1].size, image1_resized[0].size)
 
 
 
