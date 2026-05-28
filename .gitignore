@@ -2,7 +2,11 @@
 venv/
 
 # Dataset
-dataset/images/
+dataset/
+
+# scripts
+fiftyone scripts/
+scripts/
 
 # Python cache
 __pycache__/
@@ -15,3 +19,16 @@ __pycache__/
 
 # OS files
 .DS_Store
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+# VSCode settings
+.vscode/
+
+#path
+.pth
+
+#archives
+*.zip
+*.tar.gz
+*.tar-2.gz
