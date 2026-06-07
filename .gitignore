@@ -2,11 +2,10 @@
 venv/
 
 # Dataset
-dataset/
+ml_pipeline/dataset/
 
-# scripts
-fiftyone scripts/
-scripts/
+webapp/.streamlit/
+
 
 # Python cache
 __pycache__/
