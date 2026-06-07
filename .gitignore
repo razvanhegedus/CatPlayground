@@ -4,6 +4,7 @@ venv/
 # Dataset
 ml_pipeline/dataset/
 
+webapp/.streamlit/
 
 
 # Python cache
