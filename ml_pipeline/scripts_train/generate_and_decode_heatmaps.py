@@ -32,15 +32,12 @@ def get_bbox_xyxy(image_path):
     with open(json_path, "r") as file:
         annotation = json.load(file)
 
-    # Check if the annotations list is missing or completely empty
     if 'annotations' not in annotation or len(annotation['annotations']) == 0:
-        # Option A: Return a dummy background box (e.g., all zeros)
-        # This tells CenterNet there is no object here, which is standard for background images.
+
         down_left = (0, 0)
         up_right = (0, 0)
         return [down_left, up_right]
         
-    # If it's not empty, pull the bounding box safely as usual
     bbox_xyxy = annotation['annotations'][0]['bbox_xyxy']
     down_left = (int(bbox_xyxy[0]), int(bbox_xyxy[1]))
     up_right = (int(bbox_xyxy[2]), int(bbox_xyxy[3]))
@@ -99,7 +96,6 @@ def generate_heatmaps(image_path, scale_factor = 4, sigma = 2):
     orig_center_x = (dl[0] + ur[0]) / 2.0
     orig_center_y = (dl[1] + ur[1]) / 2.0
 
-    # 2. Calculate the discrete integer heatmap center: (floor(x/R), floor(y/R))
     center = (int(orig_center_x / total_scale), int(orig_center_y / total_scale))
 
     heatmaps = []
@@ -122,7 +118,6 @@ def generate_heatmaps(image_path, scale_factor = 4, sigma = 2):
     heatmap_offset_x = generate_heatmap_offset_x(center, offset_x, heatmap_h, heatmap_w)
     heatmaps.append(heatmap_offset_x)
 
-    # 4. Continuous Offset Y Target: O_hat_y = (y/R - floor(y/R))
     offset_y = (orig_center_y / total_scale) - center[1]
     heatmap_offset_y = generate_heatmap_offset_y(center, offset_y, heatmap_h, heatmap_w)
     heatmaps.append(heatmap_offset_y)
@@ -146,7 +141,7 @@ def generate_heatmap_with_center_point_gaussian(center, width, height, sigma=2):
     gaussian_kernel = np.exp(-(x_grid**2 + y_grid**2) / (2 * sigma**2))
 
     img_xmin = max(0, x_mid - radius)
-    img_xmax = min(width, x_mid + radius + 1) #because of slicing
+    img_xmax = min(width, x_mid + radius + 1) 
     img_ymin = max(0, y_mid- radius)
     img_ymax = min(height, y_mid + radius + 1)
 

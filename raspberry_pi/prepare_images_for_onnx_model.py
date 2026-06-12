@@ -27,6 +27,31 @@ def preprocess_for_onnx(image_path, downscale_factor=4):
     
     return onnx_ready_tensor
 
+
+def preprocess_image_array(image, downscale_factor=4, is_live_stream=False):
+    if is_live_stream:
+        image = cv2.flip(image, 0)
+        
+    image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+    
+    crop = image_rgb[80:, 384:]
+    
+    height = crop.shape[0] // downscale_factor
+    width = crop.shape[1] // downscale_factor
+    image_resized = cv2.resize(crop, (width, height), interpolation=cv2.INTER_AREA)
+
+    image_float = image_resized.astype(np.float32) / 255.0
+    
+    mean = np.array([0.485, 0.456, 0.406], dtype=np.float32)
+    std = np.array([0.229, 0.224, 0.225], dtype=np.float32)
+    normalized = (image_float - mean) / std
+    
+    chw_layout = np.transpose(normalized, (2, 0, 1))
+    
+    onnx_ready_tensor = np.expand_dims(chw_layout, axis=0)
+    
+    return onnx_ready_tensor
+
 def decode_image_to_full_scale(heatmaps, crop_offsets=(384, 80)):
 
     heatmap_center   = 1 / (1 + np.exp(-heatmaps[0]))
