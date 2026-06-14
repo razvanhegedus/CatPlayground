@@ -1,5 +1,7 @@
 # CatPlayground — Autonomous Edge-Computing Cat Tracker
 
+[![Website](https://img.shields.io/badge/View-Live%20Demo-blue?style=for-the-badge&logo=appveyor)](https://catplayground.streamlit.app)
+
 CatPlayground is an autonomous edge-computing system that tracks and interacts with indoor cats in real time without requiring continuous human supervision.
 
 Designed specifically for **Caju**, the system combines **computer vision, embedded hardware control, and cloud telemetry** to create an interactive laser-play environment that keeps pets active while running entirely on local hardware.
